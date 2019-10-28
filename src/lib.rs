@@ -12,13 +12,17 @@ pub trait VecExt<T> {
 	/// **Note about stabilization:** This contract is enforceable at compile-time,
 	/// so we'll want to wait until const asserts become stable and modify this
 	/// API to cause a compile error instead of panicking before stabilizing it.
-	fn recycle<U>(self) -> Vec<U> {
+	fn recycle<U>(self) -> Vec<U>;
+}
+
+impl<T> VecExt<T> for Vec<T> {
+	fn recycle<U>(mut self) -> Vec<U> {
 		self.truncate(0);
 		// TODO make these const asserts once it becomes possible
-		assert!(std::mem::size_of<T>() == std::mem::size_of<U>());
-		assert!(std::mem::align_of<T>() == std::mem::align_of<U>());
+		assert!(std::mem::size_of::<T>() == std::mem::size_of::<U>());
+		assert!(std::mem::align_of::<T>() == std::mem::align_of::<U>());
 		let cap = self.capacity();
-		let ptr = self.as_mut_ptr();
-		unsafe { std::vec::from_raw_parts(ptr, 0, cap) }
+		let ptr = self.as_mut_ptr() as *mut U;
+		unsafe { Vec::from_raw_parts(ptr, 0, cap) }
 	}
 }
