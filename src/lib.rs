@@ -1,5 +1,5 @@
 /// A trait that provides an API for recycling Vec's internal buffers
-trait VecExt<T> {
+pub trait VecExt<T> {
 
 	/// Allows re-interpret the type of a Vec to reuse the allocation.
 	/// The vector is emptied in and any values contained in it will be dropped.
