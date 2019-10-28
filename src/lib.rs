@@ -1,8 +1,8 @@
 /// A trait that provides an API for recycling Vec's internal buffers
 pub trait VecExt<T> {
 
-	/// Allows re-interpret the type of a Vec to reuse the allocation.
-	/// The vector is emptied in and any values contained in it will be dropped.
+	/// Allows re-interpreting the type of a Vec to reuse the allocation.
+	/// The vector is emptied and any values contained in it will be dropped.
 	/// The target type must have the same size and alignment as the source type.
 	/// This API doesn't transmute any values of T to U, because it makes sure
 	/// to empty the vector before any unsafe operations.
