@@ -23,6 +23,7 @@ impl<T> VecExt<T> for Vec<T> {
 		assert!(std::mem::align_of::<T>() == std::mem::align_of::<U>());
 		let cap = self.capacity();
 		let ptr = self.as_mut_ptr() as *mut U;
+		std::mem::forget(self);
 		unsafe { Vec::from_raw_parts(ptr, 0, cap) }
 	}
 }
