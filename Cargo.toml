@@ -1,6 +1,6 @@
 [package]
 name = "recycle_vec"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Pyry Kontio <pyry.kontio@drasa.eu>"]
 edition = "2018"
 description = "Provides a method for Vec to recycle it's backing allocation for use with another Vec of different type."
