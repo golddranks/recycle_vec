@@ -18,16 +18,8 @@
 //! #     }
 //! # }
 //! # 
-//! # struct DbConnection;
-//! # 
-//! # impl DbConnection {
-//! #     fn new() -> Self {
-//! #         DbConnection
-//! #     }
-//! # 
-//! #     fn insert(&mut self, _objects: &[Object<'_>]) -> Result<(), Box<dyn Error>> {
-//! #         Ok(())
-//! #     }
+//! # fn process(input: &[Object<'_>]) -> Result<(), Box<dyn Error>> {
+//! #     Ok(())
 //! # }
 //! # 
 //! # struct Object<'a> {
@@ -42,7 +34,6 @@
 //! # fn processor() -> Result<(), Box<dyn Error>> {
 //! #    let mut stream = Stream::new();
 //! #    
-//! #    let mut db_connection = DbConnection::new();
 //!     let mut objects: Vec<Object<'static>> = Vec::new();
 //! 
 //!     while let Some(byte_chunk) = stream.next() { // byte_chunk only lives this scope
@@ -50,7 +41,7 @@
 //! 
 //!         // Zero-copy parsing; Object has references to chunk
 //!         deserialize(byte_chunk, &mut objects_temp)?;
-//!         db_connection.insert(&objects_temp)?;
+//!         process(&objects_temp)?;
 //! 
 //!         objects = objects_temp.recycle();
 //!     } // byte_chunk lifetime ends

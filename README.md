@@ -12,7 +12,7 @@ when storing data with short lifetimes in `Vec`:
 
       　 // Zero-copy parsing; Object has references to chunk
       　 deserialize(byte_chunk, &mut objects_temp)?;
-     　  db_connection.insert(&objects_temp).execute()?;
+     　  process(&objects_temp)?;
 
       　 objects = objects_temp.recycle();
  　  } // byte_chunk lifetime ends

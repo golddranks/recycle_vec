@@ -2,5 +2,5 @@
 # It is not intended for manual editing.
 [[package]]
 name = "recycle_vec"
-version = "1.0.3"
+version = "1.0.4"
 
