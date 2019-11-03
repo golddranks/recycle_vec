@@ -4,21 +4,29 @@
 //! when storing data with short lifetimes in Vec:
 //! ```
 //! # use std::error::Error;
-//! # use recycle_vec::VecExt;
+//! # use crate::recycle_vec::VecExt;
 //! #
-//! # struct Stream;
+//! # struct Stream(bool);
 //! #
 //! # impl Stream {
 //! #     fn new() -> Self {
-//! #         Stream
+//! #         Stream(false)
 //! #     }
 //! #
 //! #     fn next(&mut self) -> Option<&[u8]> {
-//! #         Some(&b"hoge"[..])
+//! #         if self.0 {
+//! #             None
+//! #         } else {
+//! #             self.0 = true;
+//! #             Some(&b"foo"[..])
+//! #         }
 //! #     }
 //! # }
 //! #
 //! # fn process(input: &[Object<'_>]) -> Result<(), Box<dyn Error>> {
+//! #     for obj in input {
+//! #         let _ = obj.reference;
+//! #     }
 //! #     Ok(())
 //! # }
 //! #
@@ -31,22 +39,20 @@
 //! #     Ok(())
 //! # }
 //! #
-//! # fn processor() -> Result<(), Box<dyn Error>> {
-//! #    let mut stream = Stream::new();
-//! #    
-//!     let mut objects: Vec<Object<'static>> = Vec::new();
+//! # fn main() -> Result<(), Box<dyn Error>> {
+//! # let mut stream = Stream::new();
+//! let mut objects: Vec<Object<'static>> = Vec::new();    // Any lifetime goes here
 //!
-//!     while let Some(byte_chunk) = stream.next() { // byte_chunk only lives this scope
-//!         let mut objects_temp: Vec<Object<'_>> = objects.recycle();
+//! while let Some(byte_chunk) = stream.next() {           // `byte_chunk` lifetime starts
+//!     let mut temp: Vec<Object<'_>> = objects.recycle(); // `temp` lifetime starts
 //!
-//!         // Zero-copy parsing; Object has references to chunk
-//!         deserialize(byte_chunk, &mut objects_temp)?;
-//!         process(&objects_temp)?;
+//!     // Zero-copy parsing; deserialized `Object`s have references to `byte_chunk`
+//!     deserialize(byte_chunk, &mut temp)?;
+//!     process(&temp)?;
 //!
-//!         objects = objects_temp.recycle();
-//!     } // byte_chunk lifetime ends
-//! #
-//! #    Ok(())
+//!     objects = temp.recycle();                          // `temp` lifetime ends
+//! }                                                      // `byte_chunk` lifetime ends
+//! # Ok(())
 //! # }
 //! ```
 //! # Notes about safety
