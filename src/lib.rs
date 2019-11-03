@@ -71,6 +71,11 @@
 //! 3. It creates a new `Vec` value using `from_raw_parts`, instead of
 //! transmuting, an operation whose soundness would be questionable.
 
+#![no_std]
+
+extern crate alloc;
+use alloc::vec::Vec;
+
 /// A trait that provides an API for recycling Vec's internal buffers
 pub trait VecExt<T> {
 
@@ -92,11 +97,11 @@ impl<T> VecExt<T> for Vec<T> {
 	fn recycle<U>(mut self) -> Vec<U> {
 		self.truncate(0);
 		// TODO make these const asserts once it becomes possible
-		assert!(std::mem::size_of::<T>() == std::mem::size_of::<U>());
-		assert!(std::mem::align_of::<T>() == std::mem::align_of::<U>());
+		assert!(core::mem::size_of::<T>() == core::mem::size_of::<U>());
+		assert!(core::mem::align_of::<T>() == core::mem::align_of::<U>());
 		let cap = self.capacity();
 		let ptr = self.as_mut_ptr() as *mut U;
-		std::mem::forget(self);
+		core::mem::forget(self);
 		unsafe { Vec::from_raw_parts(ptr, 0, cap) }
 	}
 }
