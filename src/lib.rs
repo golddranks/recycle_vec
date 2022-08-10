@@ -91,7 +91,7 @@ pub trait VecExt<T> {
 
 impl<T> VecExt<T> for Vec<T> {
     fn recycle<U>(mut self) -> Vec<U> {
-        self.truncate(0);
+        self.clear();
         // TODO make these const asserts once it becomes possible
         assert!(core::mem::size_of::<T>() == core::mem::size_of::<U>());
         assert!(core::mem::align_of::<T>() == core::mem::align_of::<U>());
