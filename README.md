@@ -6,7 +6,7 @@ it was closed because 1) an additional API as little as this
 doesn't need a full RFC anymore 2) but the capabilities of the
 language around checking invariants statically aren't there yet,
 so the API would be suboptimal and therefore it's best to wait for
-the const generics and statick checking stuff to catch up.
+the const generics and static checking stuff to catch up.
 
 This crate provides a `recycle` extension method for `Vec`.
 It's intended to change the type of the `Vec` while "recycling"
