@@ -1,5 +1,13 @@
 # recycle_vec
 
+Note: There used to be an [RFC](https://github.com/rust-lang/rfcs/pull/2802)
+for making this functionality a part of the standard library. However,
+it was closed because 1) an additional API as little as this
+doesn't need a full RFC anymore 2) but the capabilities of the
+language around checking invariants statically aren't there yet,
+so the API would be suboptimal and therefore it's best to wait for
+the const generics and statick checking stuff to catch up.
+
 This crate provides a `recycle` extension method for `Vec`.
 It's intended to change the type of the `Vec` while "recycling"
 the underlying allocation. This is a trick that is useful especially
