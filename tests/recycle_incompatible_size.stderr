@@ -1,0 +1,35 @@
+error[E0080]: evaluation of `recycle_vec::AssertSameLayout::<u16, u32>::OK` failed
+ --> src/lib.rs
+  |
+  |       const OK: () = assert!(
+  |  ____________________^
+  | |         core::mem::size_of::<A>() == core::mem::size_of::<B>() && core::mem::align_of::<A>() == core::mem::align_of::<B>(),
+  | |         "types must have identical size and alignment"
+  | |     );
+  | |_____^ the evaluated program panicked at 'types must have identical size and alignment', $DIR/src/lib.rs:79:20
+  |
+  = note: this error originates in the macro `$crate::panic::panic_2021` which comes from the expansion of the macro `assert` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+note: the above error was encountered while instantiating `fn <std::vec::Vec<u16> as recycle_vec::VecExt<u16>>::recycle::<u32>`
+ --> tests/recycle_incompatible_size.rs:7:24
+  |
+7 |         let mut buf2 = buf.recycle();
+  |                        ^^^^^^^^^^^^^
+
+error[E0080]: evaluation of `recycle_vec::AssertSameLayout::<u32, u16>::OK` failed
+ --> src/lib.rs
+  |
+  |       const OK: () = assert!(
+  |  ____________________^
+  | |         core::mem::size_of::<A>() == core::mem::size_of::<B>() && core::mem::align_of::<A>() == core::mem::align_of::<B>(),
+  | |         "types must have identical size and alignment"
+  | |     );
+  | |_____^ the evaluated program panicked at 'types must have identical size and alignment', $DIR/src/lib.rs:79:20
+  |
+  = note: this error originates in the macro `$crate::panic::panic_2021` which comes from the expansion of the macro `assert` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+note: the above error was encountered while instantiating `fn <std::vec::Vec<u32> as recycle_vec::VecExt<u32>>::recycle::<u16>`
+ --> tests/recycle_incompatible_size.rs:9:15
+  |
+9 |         buf = buf2.recycle();
+  |               ^^^^^^^^^^^^^^

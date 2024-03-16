@@ -1,11 +1,14 @@
 [package]
 name = "recycle_vec"
-version = "1.0.4"
+version = "1.1.0"
 authors = ["Pyry Kontio <pyry.kontio@drasa.eu>"]
-edition = "2018"
+edition = "2021"
 description = "Provides a method for Vec to recycle it's backing allocation for use with another Vec of different type."
 license = "MIT"
 repository = "https://github.com/golddranks/recycle_vec"
 documentation = "https://docs.rs/recycle_vec/"
 
 [dependencies]
+
+[dev-dependencies]
+trybuild = "1.0.89"

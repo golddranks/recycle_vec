@@ -34,6 +34,8 @@ This ensures that no values of arbitrary types are transmuted
 accidentally.
 2. It checks that the sizes and alignments of the source and target
 types match. This ensures that the underlying block of memory backing
-`Vec` is compatible layout-wise.
+`Vec` is compatible layout-wise. The sizes and alignments are checked
+statically, so if the compile will fail in case of a mismatch.
 3. It creates a new `Vec` value using `from_raw_parts` instead of
 transmuting, an operation whose soundness would be questionable.
+

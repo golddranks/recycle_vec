@@ -64,14 +64,24 @@
 //! accidentally.
 //! 2. It checks that the sizes and alignments of the source and target
 //! types match. This ensures that the underlying block of memory backing
-//! `Vec` is compatible layout-wise.
+//! `Vec` is compatible layout-wise. The sizes and alignments are checked
+//! statically, so if the compile will fail in case of a mismatch.
 //! 3. It creates a new `Vec` value using `from_raw_parts`, instead of
 //! transmuting, an operation whose soundness would be questionable.
 
 #![no_std]
 
 extern crate alloc;
+
 use alloc::vec::Vec;
+
+struct AssertSameLayout<A, B>(core::marker::PhantomData<(A, B)>);
+impl<A, B> AssertSameLayout<A, B> {
+    const OK: () = assert!(
+        core::mem::size_of::<A>() == core::mem::size_of::<B>() && core::mem::align_of::<A>() == core::mem::align_of::<B>(),
+        "types must have identical size and alignment"
+    );
+}
 
 /// A trait that provides an API for recycling Vec's internal buffers
 pub trait VecExt<T> {
@@ -80,21 +90,15 @@ pub trait VecExt<T> {
     /// The target type must have the same size and alignment as the source type.
     /// This API doesn't transmute any values of T to U, because it makes sure
     /// to empty the vector before any unsafe operations.
-    ///
-    /// # Panics
-    /// Panics if the size or alignment of the source and target types don't match.
-    /// **Note about stabilization:** This contract is enforceable at compile-time,
-    /// so we'll want to wait until const asserts become stable and modify this
-    /// API to cause a compile error instead of panicking before stabilizing it.
     fn recycle<U>(self) -> Vec<U>;
 }
 
 impl<T> VecExt<T> for Vec<T> {
     fn recycle<U>(mut self) -> Vec<U> {
         self.clear();
-        // TODO make these const asserts once it becomes possible
-        assert!(core::mem::size_of::<T>() == core::mem::size_of::<U>());
-        assert!(core::mem::align_of::<T>() == core::mem::align_of::<U>());
+
+        () = AssertSameLayout::<T, U>::OK;
+
         let cap = self.capacity();
         let ptr = self.as_mut_ptr() as *mut U;
         core::mem::forget(self);
@@ -145,30 +149,10 @@ fn test_recycle_type() {
     buf.push(s.as_str());
 }
 
-/// Tests that `recycle` successfully panics with incompatible sizes
 #[test]
-#[should_panic]
-fn test_recycle_incompatible_size() {
-    let mut buf = Vec::with_capacity(100);
-    buf.push(1_u16);
-    {
-        let mut buf2 = buf.recycle();
-        buf2.push(1_u32);
-        buf = buf2.recycle();
-    }
-    buf.push(1_u16);
-}
-
-/// Tests that `recycle` successfully panics with incompatible alignments
-#[test]
-#[should_panic]
-fn test_recycle_incompatible_alignment() {
-    let mut buf = Vec::with_capacity(100);
-    buf.push([0_u16, 1_u16]);
-    {
-        let mut buf2 = buf.recycle();
-        buf2.push(1_u32);
-        buf = buf2.recycle();
-    }
-    buf.push([0_u16, 1_u16]);
+fn test_layout_assert() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/force_build.rs");
+    t.compile_fail("tests/recycle_incompatible_size.rs");
+    t.compile_fail("tests/recycle_incompatible_alignment.rs");
 }
