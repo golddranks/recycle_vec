@@ -60,28 +60,20 @@
 //! However, it provides a safe interface. To achieve safety, it does
 //! the following precautions:
 //! 1. It truncates the `Vec` to zero length, dropping all the values.
-//! This ensures that no values of arbitrary types are transmuted
-//! accidentally.
+//!    This ensures that no values of arbitrary types are transmuted
+//!    accidentally.
 //! 2. It checks that the sizes and alignments of the source and target
-//! types match. This ensures that the underlying block of memory backing
-//! `Vec` is compatible layout-wise. The sizes and alignments are checked
-//! statically, so if the compile will fail in case of a mismatch.
+//!    types match. This ensures that the underlying block of memory backing
+//!    `Vec` is compatible layout-wise. The sizes and alignments are checked
+//!    statically, so if the compile will fail in case of a mismatch.
 //! 3. It creates a new `Vec` value using `from_raw_parts`, instead of
-//! transmuting, an operation whose soundness would be questionable.
+//!    transmuting, an operation whose soundness would be questionable.
 
 #![no_std]
 
 extern crate alloc;
 
 use alloc::vec::Vec;
-
-struct AssertSameLayout<A, B>(core::marker::PhantomData<(A, B)>);
-impl<A, B> AssertSameLayout<A, B> {
-    const OK: () = assert!(
-        core::mem::size_of::<A>() == core::mem::size_of::<B>() && core::mem::align_of::<A>() == core::mem::align_of::<B>(),
-        "types must have identical size and alignment"
-    );
-}
 
 /// A trait that provides an API for recycling Vec's internal buffers
 pub trait VecExt<T> {
@@ -97,7 +89,16 @@ impl<T> VecExt<T> for Vec<T> {
     fn recycle<U>(mut self) -> Vec<U> {
         self.clear();
 
-        () = AssertSameLayout::<T, U>::OK;
+        const {
+            assert!(
+                core::mem::size_of::<T>() == core::mem::size_of::<U>(),
+                "types must have identical size"
+            );
+            assert!(
+                core::mem::align_of::<T>() == core::mem::align_of::<U>(),
+                "types must have identical alignment"
+            );
+        }
 
         let cap = self.capacity();
         let ptr = self.as_mut_ptr() as *mut U;
